@@ -48,7 +48,7 @@ class Text extends Drawable {
 		if( this.font == font ) return font;
 		this.font = font;
 		#if lime
-		if( font.tile.getTexture().format == ALPHA ){
+		if( font.tile.getTexture().format == ALPHA8 ){
 			if( waShader == null ) addShader( waShader = new h3d.shader.WhiteAlpha() );
 		}else{
 			if( waShader != null ) removeShader( waShader );
