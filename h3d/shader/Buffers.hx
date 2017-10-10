@@ -6,7 +6,7 @@ package h3d.shader;
 	public var Textures = 2;
 }
 
-typedef ShaderBufferData = #if js js.html.Float32Array #else haxe.ds.Vector<hxd.impl.Float32> #end;
+typedef ShaderBufferData = #if flash haxe.ds.Vector<hxd.impl.Float32> #elseif lime lime.utils.Float32Array #elseif js js.html.Float32Array #else haxe.ds.Vector<hxd.impl.Float32> #end;
 
 class ShaderBuffers {
 

@@ -144,7 +144,7 @@ private class LocalEntry extends FileEntry {
 	}
 
 	override function loadBitmap( onLoaded : hxd.fs.LoadedBitmap -> Void ) : Void {
-		#if flash
+		#if (flash || openfl)
 		var loader = new flash.display.Loader();
 		loader.contentLoaderInfo.addEventListener(flash.events.IOErrorEvent.IO_ERROR, function(e:flash.events.IOErrorEvent) {
 			throw Std.string(e) + " while loading " + relPath;
@@ -157,6 +157,12 @@ private class LocalEntry extends FileEntry {
 		var ctx = new flash.system.LoaderContext();
 		ctx.imageDecodingPolicy = ON_LOAD;
 		loader.load(new flash.net.URLRequest(file.url), ctx);
+		#elseif lime
+		lime.graphics.Image.loadFromFile(file).onError(function(e) {
+			throw Std.string(e) + " while loading " + relPath;
+		}).onComplete(function(image) {
+			onLoaded(new LoadedBitmap(image));
+		});
 		#elseif js
 		var image = new js.html.Image();
 		image.onload = function(_) {

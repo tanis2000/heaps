@@ -308,9 +308,9 @@ class FontBuilder {
 			}
 		}
 
-		var pixels = new hxd.Pixels( width, height, px, ALPHA );
+		var pixels = new hxd.Pixels( width, height, px, ALPHA8 );
 		if( innerTex == null ) {
-			innerTex = new h3d.mat.Texture(pixels.width, pixels.height, h3d.mat.Data.TextureFormat.ALPHA);
+			innerTex = new h3d.mat.Texture(pixels.width, pixels.height, h3d.mat.Data.TextureFormat.ALPHA8);
 			innerTex.uploadPixels(pixels);
 			font.tile = h2d.Tile.fromTexture(innerTex);
 			for( t in all )

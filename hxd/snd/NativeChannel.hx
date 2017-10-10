@@ -20,7 +20,7 @@ private class ALChannel {
 		this.native = native;
 		this.samples = samples;
 		buffers = AL.genBuffers(2);
-		src = AL.genSource();
+		src = AL.createSource();
 		AL.sourcef(src,AL.PITCH,1.0);
 		AL.sourcef(src,AL.GAIN,1.0);
 		fbuf = haxe.io.Bytes.alloc( samples<<3 );

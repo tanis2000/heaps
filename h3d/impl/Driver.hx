@@ -6,6 +6,12 @@ typedef VertexBuffer = Stage3dDriver.VertexWrapper;
 typedef Texture = flash.display3D.textures.TextureBase;
 typedef DepthBuffer = {};
 typedef Query = {};
+#elseif lime
+typedef IndexBuffer = lime.graphics.opengl.GLBuffer;
+typedef VertexBuffer = { b : lime.graphics.opengl.GLBuffer, stride : Int };
+typedef Texture = { t : lime.graphics.opengl.GLTexture, width : Int, height : Int, internalFmt : Int, pixelFmt : Int, bits : Int };
+typedef DepthBuffer = { r : lime.graphics.opengl.GLRenderbuffer };
+typedef Query = {};
 #elseif js
 typedef IndexBuffer = js.html.webgl.Buffer;
 typedef VertexBuffer = { b : js.html.webgl.Buffer, stride : Int };
@@ -17,12 +23,6 @@ typedef IndexBuffer = nme.gl.GLBuffer;
 typedef VertexBuffer = { b : nme.gl.GLBuffer, stride : Int };
 typedef Texture = { t : nme.gl.GLTexture, width : Int, height : Int, internalFmt : Int, pixelFmt : Int, bits : Int };
 typedef DepthBuffer = { r : nme.gl.Renderbuffer };
-typedef Query = {};
-#elseif lime
-typedef IndexBuffer = lime.graphics.opengl.GLBuffer;
-typedef VertexBuffer = { b : lime.graphics.opengl.GLBuffer, stride : Int };
-typedef Texture = { t : lime.graphics.opengl.GLTexture, width : Int, height : Int, internalFmt : Int, pixelFmt : Int, bits : Int };
-typedef DepthBuffer = { r : lime.graphics.opengl.GLRenderbuffer };
 typedef Query = {};
 #elseif hlsdl
 typedef IndexBuffer = sdl.GL.Buffer;

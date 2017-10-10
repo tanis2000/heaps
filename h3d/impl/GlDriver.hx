@@ -4,18 +4,9 @@ import h3d.mat.Pass;
 import h3d.mat.Stencil;
 import h3d.mat.Data;
 
-#if (js||cpp||hlsdl||psgl)
+#if (js||cpp||hlsdl||psgl||neko)
 
-#if js
-import js.html.Uint16Array;
-import js.html.Uint8Array;
-import js.html.Float32Array;
-private typedef GL = js.html.webgl.GL;
-private typedef Uniform = js.html.webgl.UniformLocation;
-private typedef Program = js.html.webgl.Program;
-private typedef GLShader = js.html.webgl.Shader;
-private typedef Framebuffer = js.html.webgl.Framebuffer;
-#elseif lime
+#if lime
 import lime.graphics.opengl.GL;
 private typedef Uniform = Dynamic;
 private typedef Program = lime.graphics.opengl.GLProgram;
@@ -24,6 +15,15 @@ private typedef Framebuffer = lime.graphics.opengl.GLFramebuffer;
 private typedef Uint16Array = lime.utils.UInt16Array;
 private typedef Uint8Array = lime.utils.UInt8Array;
 private typedef Float32Array = lime.utils.Float32Array;
+#elseif js
+import js.html.Uint16Array;
+import js.html.Uint8Array;
+import js.html.Float32Array;
+private typedef GL = js.html.webgl.GL;
+private typedef Uniform = js.html.webgl.UniformLocation;
+private typedef Program = js.html.webgl.Program;
+private typedef GLShader = js.html.webgl.Shader;
+private typedef Framebuffer = js.html.webgl.Framebuffer;
 #elseif nme
 import nme.gl.GL;
 private typedef Uniform = Dynamic;
@@ -92,12 +92,15 @@ private class CompiledProgram {
 }
 
 @:access(h3d.impl.Shader)
-#if (cpp||hlsdl||psgl)
+#if ((cpp||hlsdl||psgl) && !lime)
 @:build(h3d.impl.MacroHelper.replaceGL())
 #end
 class GlDriver extends Driver {
 
-	#if js
+	#if lime
+	var mrtExt : { function drawBuffersWEBGL( colors : Array<Int> ) : Void; };
+	public var gl : lime.graphics.opengl.WebGLContext;
+	#elseif js
 	var canvas : js.html.CanvasElement;
 	var mrtExt : { function drawBuffersWEBGL( colors : Array<Int> ) : Void; };
 	public var gl : js.html.webgl.RenderingContext;
@@ -132,7 +135,9 @@ class GlDriver extends Driver {
 	var firstShader = true;
 
 	public function new(antiAlias=0) {
-		#if js
+		#if lime
+		gl = GL;
+		#elseif js
 		canvas = @:privateAccess hxd.Stage.getInstance().canvas;
 		gl = canvas.getContextWebGL({alpha:false,antialias:antiAlias>0});
 		if( gl == null ) throw "Could not acquire GL context";
@@ -559,7 +564,10 @@ class GlDriver extends Driver {
 	}
 
 	override function resize(width, height) {
-		#if js
+		#if lime
+		// get current window?
+		lime.app.Application.current.window.resize(width, height);
+		#elseif js
 		// prevent infinite grow if pixelRatio != 1
 		if( canvas.style.width == "" ) {
 			canvas.style.width = Std.int(width / js.Browser.window.devicePixelRatio)+"px";
@@ -584,7 +592,7 @@ class GlDriver extends Driver {
 
 	function getChannels( t : Texture ) {
 		return switch( t.internalFmt ) {
-		#if !js
+		#if (!js && !lime)
 		case GL.RGBA32F, GL.RGBA16F: GL.RGBA;
 		case GL.ALPHA16F, GL.ALPHA32F: GL.ALPHA;
 		case GL.RGBA8: GL.BGRA;
@@ -599,7 +607,7 @@ class GlDriver extends Driver {
 		return switch( fmt ) {
 		case RGBA, ALPHA8: true;
 		case RGBA32F: hasFeature(FloatTextures);
-		#if !js
+		#if (!js && !lime)
 		case ALPHA16F, ALPHA32F, RGBA16F: hasFeature(FloatTextures);
 		#end
 		default: false;
@@ -615,13 +623,13 @@ class GlDriver extends Driver {
 		case ALPHA8:
 			tt.internalFmt = GL.ALPHA;
 		case RGBA32F if( hasFeature(FloatTextures) ):
-			#if js
+			#if (js || lime)
 			tt.pixelFmt = GL.FLOAT;
 			#else
 			tt.internalFmt = GL.RGBA32F;
 			tt.pixelFmt = GL.FLOAT;
 			#end
-		#if !js
+		#if (!js && !lime)
 		case BGRA:
 			tt.internalFmt = GL.RGBA8;
 		case RGBA16F if( hasFeature(FloatTextures) ):
@@ -866,6 +874,15 @@ class GlDriver extends Driver {
 		#if hl
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(data,bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
+		#elseif lime
+		// todo: better solution
+		var arr = buf.getNative();
+		var buf = new Float32Array();
+		for (i in 0...arr.length) {
+			buf[i] = arr[i];
+		}
+		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
+		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, sub);
 		#else
 		var buf : Float32Array = buf.getNative();
 		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
@@ -1099,7 +1116,7 @@ class GlDriver extends Driver {
 		case FloatTextures:
 			gl.getExtension('OES_texture_float') != null && gl.getExtension('OES_texture_float_linear') != null;
 		case MultipleRenderTargets:
-			#if js
+			#if (js || lime)
 			mrtExt != null || (mrtExt = gl.getExtension('WEBGL_draw_buffers')) != null;
 			#else
 			false; // no support for glDrawBuffers in OpenFL
