@@ -48,9 +48,10 @@ class Stage {
 			windows: [wc]
 		}
 		app.create(appConfig);
-		//app.create(null);
-		//app.createWindow(window);
 		trace(lime.app.Application.current.renderer.type);
+		// TODO: bind the events here and create an event handler
+		app.onUpdate.add(onUpdate);
+		app.renderer.onRender.add(onRender);
 		trace("neko Stage new end");
 	}
 
@@ -131,6 +132,14 @@ class Stage {
 	function set_vsync( b : Bool ) : Bool {
 		window.config.vsync = b;
 		return b;
+	}
+
+	function onUpdate(dt : Int):Void {
+		trace("update");
+	}
+
+	function onRender() : Void {
+		trace("render");
 	}
 /*
 	var wasBlurred : Bool;

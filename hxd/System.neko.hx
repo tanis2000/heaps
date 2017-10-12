@@ -46,7 +46,7 @@ class System {
 
 	static function mainLoop() : Void {
 		if( loopFunc != null ) loopFunc();
-		//@:privateAccess hxd.Stage.inst.window.present();
+		@:privateAccess lime.app.Application.current.renderer.flip();
 	}
 
 	public static function start( init : Void -> Void ) : Void {

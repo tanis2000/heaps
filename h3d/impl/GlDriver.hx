@@ -137,7 +137,7 @@ class GlDriver extends Driver {
 	public function new(antiAlias=0) {
 		#if lime
 		trace("Renderer: " + lime.app.Application.current.renderer.type);
-		gl = cast GL;
+		gl = GL.context;
 		#elseif js
 		canvas = @:privateAccess hxd.Stage.getInstance().canvas;
 		gl = canvas.getContextWebGL({alpha:false,antialias:antiAlias>0});
