@@ -547,6 +547,7 @@ class GlDriver extends Driver {
 	}
 
 	override function clear( ?color : h3d.Vector, ?depth : Float, ?stencil : Int ) {
+		trace("clear start");
 		var bits = 0;
 		if( color != null ) {
 			gl.colorMask(true, true, true, true);
@@ -1129,6 +1130,10 @@ class GlDriver extends Driver {
 					onCreate(false);
 				}
 			});
+		#elseif lime
+		trace("driver init start");
+		haxe.Timer.delay(onCreate.bind(false), 1).run();
+		trace("driver init end");
 		#else
 		haxe.Timer.delay(onCreate.bind(false), 1);
 		#end

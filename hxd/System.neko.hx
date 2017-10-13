@@ -41,12 +41,14 @@ class System {
 	}
 
 	public static function setLoop( f : Void -> Void ) : Void {
+		trace("loop set to " + f);
 		loopFunc = f;
 	}
 
 	static function mainLoop() : Void {
 		if( loopFunc != null ) loopFunc();
 		@:privateAccess lime.app.Application.current.renderer.flip();
+		//trace("end of main loop after flip");
 	}
 
 	public static function start( init : Void -> Void ) : Void {

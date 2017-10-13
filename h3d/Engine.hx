@@ -57,7 +57,7 @@ class Engine {
 		lastTime = haxe.Timer.stamp();
 		stage.addResizeEvent(onStageResize);
 		#if (js || cpp || hlsdl || psgl || lime)
-		trace("here");
+		trace("using GLDriver");
 		driver = new h3d.impl.GlDriver(antiAlias);
 		#elseif flash
 		driver = new h3d.impl.Stage3dDriver(antiAlias);
@@ -87,7 +87,9 @@ class Engine {
 	}
 
 	public function init() {
+		trace("about to start driver.init");
 		driver.init(onCreate, !hardware);
+		trace("driver.init finished");
 	}
 
 	public function driverName(details=false) {
@@ -198,6 +200,7 @@ class Engine {
 	}
 
 	function onCreate( disposed ) {
+		trace("begin onCreate");
 		setCurrent();
 		if( autoResize ) {
 			width = stage.width;
@@ -217,6 +220,7 @@ class Engine {
 			onContextLost();
 		else
 			onReady();
+		trace("end onCreate");
 	}
 
 	public dynamic function onContextLost() {

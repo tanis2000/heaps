@@ -24,7 +24,9 @@ class App implements h3d.IDrawable {
 			hxd.System.start(function() {
 				this.engine = engine = new h3d.Engine();
 				engine.onReady = setup;
+				trace("about to init the engine");
 				engine.init();
+				trace("finished with init of the engine");
 			});
 		}
 	}
@@ -82,7 +84,9 @@ class App implements h3d.IDrawable {
 		sevents = new hxd.SceneEvents();
 		sevents.addScene(s2d);
 		sevents.addScene(s3d);
+		trace("about to load assets");
 		loadAssets(function() {
+			trace("assets loaded");
 			initDone = true;
 			init();
 			hxd.Timer.skip();
@@ -107,6 +111,7 @@ class App implements h3d.IDrawable {
 	}
 
 	function mainLoop() {
+		trace("main loop start");
 		hxd.Timer.update();
 		sevents.checkEvents();
 		if( isDisposed ) return;
@@ -115,6 +120,7 @@ class App implements h3d.IDrawable {
 		s2d.setElapsedTime(Timer.tmod/60);
 		s3d.setElapsedTime(Timer.tmod / 60);
 		engine.render(this);
+		trace("main loop end");
 	}
 
 	function update( dt : Float ) {
