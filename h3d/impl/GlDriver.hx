@@ -154,6 +154,10 @@ class GlDriver extends Driver {
 	var commonVA : VertexArray;
 	#end
 
+	#if (lime)
+	var commonVA : lime.graphics.opengl.GLVertexArrayObject;
+	#end
+
 	var commonFB : Framebuffer;
 	var curAttribs : Int = 0;
 	var curShader : CompiledProgram;
@@ -239,7 +243,10 @@ class GlDriver extends Driver {
 		// setup shader optim
 		hxsl.SharedShader.UNROLL_LOOPS = !hasFeature(ShaderModel3);
 		#else
+		#if !lime
+		// NOTE: not sure if Lime supports this. Is it part of OpenGL ES?
 		gl.enable(GL.TEXTURE_CUBE_MAP_SEAMLESS);
+		#end
 		gl.pixelStorei(GL.PACK_ALIGNMENT, 1);
 		gl.pixelStorei(GL.UNPACK_ALIGNMENT, 1);
 		gl.finish(); // prevent glError() on first bufferData
@@ -476,6 +483,9 @@ class GlDriver extends Driver {
 			if( s.globals != null ) {
 				#if hl
 				gl.uniform4fv(s.globals, streamData(hl.Bytes.getArray(buf.globals.toData()), 0, s.shader.globalsSize * 16), 0, s.shader.globalsSize * 4);
+				#elseif lime
+				var a = buf.globals.subarray(0, s.shader.globalsSize * 4);
+				gl.uniform4fv(s.globals, s.shader.globalsSize * 4, a);
 				#else
 				var a = buf.globals.subarray(0, s.shader.globalsSize * 4);
 				gl.uniform4fv(s.globals, a);
@@ -485,6 +495,9 @@ class GlDriver extends Driver {
 			if( s.params != null ) {
 				#if hl
 				gl.uniform4fv(s.params, streamData(hl.Bytes.getArray(buf.params.toData()), 0, s.shader.paramsSize * 16), 0, s.shader.paramsSize * 4);
+				#elseif lime
+				var a = buf.globals.subarray(0, s.shader.globalsSize * 4);
+				gl.uniform4fv(s.params, s.shader.paramsSize * 4, a);
 				#else
 				var a = buf.params.subarray(0, s.shader.paramsSize * 4);
 				gl.uniform4fv(s.params, a);
@@ -717,7 +730,11 @@ class GlDriver extends Driver {
 		if( depth != null ) {
 			gl.depthMask(true);
 			if( curMatBits >= 0 ) curMatBits |= Pass.depthWrite_mask;
+			#if lime
+			gl.clearDepthf(depth);
+			#else
 			gl.clearDepth(depth);
+			#end
 			bits |= GL.DEPTH_BUFFER_BIT;
 		}
 		if( stencil != null ) {
@@ -756,8 +773,13 @@ class GlDriver extends Driver {
 
 	function getChannels( t : Texture ) {
 		return switch( t.internalFmt ) {
+		#if !lime
 		case GL2.RGBA32F, GL2.RGBA16F, GL2.SRGB_ALPHA, GL2.SRGB8_ALPHA: GL.RGBA;
 		case GL2.RGBA8: GL2.BGRA;
+		#else 
+		case GL2.RGBA32F, GL2.RGBA16F, GL2.SRGB8_ALPHA8: GL.RGBA;
+		case GL2.RGBA8: GL.RGBA8;
+		#end
 		case GL2.SRGB, GL2.SRGB8: GL.RGB;
 		case GL.RGBA: GL.RGBA;
 		case GL.RGB: GL.RGB;
@@ -806,7 +828,11 @@ class GlDriver extends Driver {
 		case SRGB:
 			tt.internalFmt = GL2.SRGB8;
 		case SRGB_ALPHA:
+			#if lime
+			tt.internalFmt = GL2.SRGB8_ALPHA8;
+			#else
 			tt.internalFmt = GL2.SRGB8_ALPHA;
+			#end
 		case RGB8:
 			tt.internalFmt = GL.RGB;
 		#if (!hlsdl || (hlsdl >= "1.7"))
@@ -859,16 +885,28 @@ class GlDriver extends Driver {
 
 		if( t.flags.has(Cube) ) {
 			for( i in 0...6 ) {
+				#if lime
+				gl.texImage2D(CUBE_FACES[i], 0, tt.internalFmt, tt.width, tt.height, 0, getChannels(tt), tt.pixelFmt, 0);
+				#else
 				gl.texImage2D(CUBE_FACES[i], 0, tt.internalFmt, tt.width, tt.height, 0, getChannels(tt), tt.pixelFmt, null);
+				#end
 				if( checkError() ) break;
 			}
 		#if (!hlsdl || (hlsdl >= "1.7"))
 		} else if( t.flags.has(IsArray) ) {
+			#if lime
+			gl.texImage3D(GL2.TEXTURE_2D_ARRAY, 0, tt.internalFmt, tt.width, tt.height, t.layerCount, 0, getChannels(tt), tt.pixelFmt, 0);
+			#else
 			gl.texImage3D(GL2.TEXTURE_2D_ARRAY, 0, tt.internalFmt, tt.width, tt.height, t.layerCount, 0, getChannels(tt), tt.pixelFmt, null);
+			#end
 			checkError();
 		#end
 		} else {
+			#if lime
+			gl.texImage2D(bind, 0, tt.internalFmt, tt.width, tt.height, 0, getChannels(tt), tt.pixelFmt, 0);
+			#else
 			gl.texImage2D(bind, 0, tt.internalFmt, tt.width, tt.height, 0, getChannels(tt), tt.pixelFmt, null);
+			#end
 			checkError();
 		}
 		restoreBind();
@@ -935,6 +973,9 @@ class GlDriver extends Driver {
 		gl.bufferData(GL.ARRAY_BUFFER, m.size * m.stride * 4, m.flags.has(Dynamic) ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW);
 		#elseif hl
 		gl.bufferDataSize(GL.ARRAY_BUFFER, m.size * m.stride * 4, m.flags.has(Dynamic) ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW);
+		#elseif lime
+		var tmp = new Uint8Array(m.size * m.stride * 4);
+		gl.bufferData(GL.ARRAY_BUFFER, m.size * m.stride * 4, tmp, m.flags.has(Dynamic) ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW);
 		#else
 		var tmp = new Uint8Array(m.size * m.stride * 4);
 		gl.bufferData(GL.ARRAY_BUFFER, tmp, m.flags.has(Dynamic) ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW);
@@ -993,7 +1034,7 @@ class GlDriver extends Driver {
 	}
 
 	override function uploadTextureBitmap( t : h3d.mat.Texture, bmp : hxd.BitmapData, mipLevel : Int, side : Int ) {
-	#if (hxcpp || hl)
+	#if (hxcpp || hl || lime)
 		var pixels = bmp.getPixels();
 		uploadTexturePixels(t, pixels, mipLevel, side);
 		pixels.dispose();
@@ -1110,6 +1151,10 @@ class GlDriver extends Driver {
 		#if hl
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(data,bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
+		#elseif lime
+		var buf : Float32Array = buf.getNative();
+		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
+		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
 		#else
 		var buf : Float32Array = buf.getNative();
 		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
@@ -1123,6 +1168,10 @@ class GlDriver extends Driver {
 		gl.bindBuffer(GL.ARRAY_BUFFER, v.b);
 		#if hl
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(buf.getData(),bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
+		#elseif lime
+		var buf = bytesToUint8Array(buf);
+		var sub = new Uint8Array(buf.buffer, bufPos * 4, vertexCount * stride * 4);
+		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
 		#else
 		var buf = bytesToUint8Array(buf);
 		var sub = new Uint8Array(buf.buffer, bufPos * 4, vertexCount * stride * 4);
@@ -1137,6 +1186,10 @@ class GlDriver extends Driver {
 		#if hl
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(data,bufPos << bits,indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
+		#elseif lime
+		var buf = new Uint16Array(buf.getNative());
+		var sub = new Uint16Array(buf.buffer, bufPos << bits, indiceCount);
+		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
 		#else
 		var buf = new Uint16Array(buf.getNative());
 		var sub = new Uint16Array(buf.buffer, bufPos << bits, indiceCount);
@@ -1151,6 +1204,10 @@ class GlDriver extends Driver {
 		gl.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, i.b);
 		#if hl
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(buf.getData(),bufPos << bits, indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
+		#elseif lime
+		var buf = bytesToUint8Array(buf);
+		var sub = new Uint8Array(buf.buffer, bufPos << bits, indiceCount << bits);
+		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
 		#else
 		var buf = bytesToUint8Array(buf);
 		var sub = new Uint8Array(buf.buffer, bufPos << bits, indiceCount << bits);
@@ -1283,7 +1340,7 @@ class GlDriver extends Driver {
 			curIndexBuffer = ibuf;
 			gl.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ibuf.b);
 		}
-		#if (!js && (!hlsdl || hlsdl >= "1.7"))
+		#if (!js && (!hlsdl || hlsdl >= "1.7") && !lime)
 		if( hasMultiIndirect ) {
 			gl.bindBuffer(GL2.DRAW_INDIRECT_BUFFER, commands.data);
 			if( ibuf.is32 )
@@ -1650,7 +1707,7 @@ class GlDriver extends Driver {
 		GL.FUNC_ADD,
 		GL.FUNC_SUBTRACT,
 		GL.FUNC_REVERSE_SUBTRACT,
-		#if (!hlsdl || (hlsdl >= "1.7"))
+		#if (!hlsdl && !cpp || (hlsdl >= "1.7"))
 		GL2.FUNC_MIN,
 		GL2.FUNC_MAX,
 		#end
