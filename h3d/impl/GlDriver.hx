@@ -483,6 +483,9 @@ class GlDriver extends Driver {
 	}
 
 	function uploadBuffer( s : CompiledShader, buf : h3d.shader.Buffers.ShaderBuffers, which : h3d.shader.Buffers.BufferKind ) {
+		#if lime
+		if (buf.globals.length <= 0 || buf.globals.buffer == null) return;
+		#end
 		switch( which ) {
 		case Globals:
 			if( s.globals != null ) {
@@ -1309,7 +1312,7 @@ class GlDriver extends Driver {
 	}
 
 	override function allocInstanceBuffer( b : InstanceBuffer, bytes : haxe.io.Bytes ) {
-		#if( !js && (!hlsdl || (hlsdl >= "1.7")) )
+		#if( !js && !lime && (!hlsdl || (hlsdl >= "1.7")) )
 		if( hasMultiIndirect ) {
 			var buf = gl.createBuffer();
 			gl.bindBuffer(GL2.DRAW_INDIRECT_BUFFER, buf);
