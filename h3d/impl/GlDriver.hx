@@ -1519,6 +1519,7 @@ class GlDriver extends Driver {
 	}
 
 	override function init( onCreate : Bool -> Void, forceSoftware = false ) {
+		trace('GlDriver init()');
 		#if js
 		var ready = false;
 		// wait until all assets have properly load
@@ -1531,6 +1532,8 @@ class GlDriver extends Driver {
 					onCreate(false);
 				}
 			});
+		#elseif lime
+		onCreate(false);
 		#else
 		haxe.Timer.delay(onCreate.bind(false), 1);
 		#end

@@ -218,6 +218,7 @@ class Engine {
 	}
 
 	function onCreate( disposed ) {
+		trace('GlDriver onCreate()');
 		setCurrent();
 		if( autoResize ) {
 			width = stage.width;
