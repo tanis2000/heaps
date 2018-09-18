@@ -63,14 +63,26 @@ private abstract LimeFloat32Expand({ pos : Int, array : lime.utils.Float32Array 
 	}
 
 	public inline function push(v:Float) {
+		trace('push');
+		trace(this.pos);
+		trace(this.array);
 		if( this.pos == this.array.length ) {
 			var newSize = this.array.length << 1;
 			if( newSize < 128 ) newSize = 128;
 			var newArray = new lime.utils.Float32Array(newSize);
-			newArray.set(this.array);
+			trace('1');
+			trace(newArray);
+			trace(this.array);
+			if (this.array.length > 0) {
+				newArray.set(this.array);
+			}
+			trace('2');
 			this.array = newArray;
+			trace('3');
 		}
 		this.array[this.pos++] = v;
+		trace(this.pos);
+		trace(this.array);
 	}
 
 	@:arrayAccess inline function get(index) return this.array[index];

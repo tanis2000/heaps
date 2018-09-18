@@ -217,9 +217,14 @@ class GlDriver extends Driver {
 		#end
 
 		var v : String = gl.getParameter(GL.VERSION);
+		trace(v);
 		var reg = ~/ES ([0-9]+\.[0-9]+)/;
 		if( reg.match(v) )
 			glES = Std.parseFloat(reg.matched(1));
+
+		#if lime
+		glES = 2;
+		#end
 
 		#if !js
 		if( glES == null ) {

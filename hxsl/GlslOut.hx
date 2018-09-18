@@ -546,7 +546,9 @@ class GlslOut {
 		intelDriverFix = true;
 		#end
 
+		#if !lime
 		decl("precision mediump float;");
+		#end
 
 		if( s.funs.length != 1 ) throw "assert";
 		var f = s.funs[0];
@@ -646,6 +648,9 @@ class GlslOut {
 		#if js
 		out.glES = 1;
 		out.version = 100;
+		#elseif lime
+		out.glES = 2;
+		out.version = 120;
 		#end
 		return out.run(s);
 	}
