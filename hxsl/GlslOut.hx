@@ -546,7 +546,7 @@ class GlslOut {
 		intelDriverFix = true;
 		#end
 
-		#if !lime
+		#if (!lime || !desktop)
 		decl("precision mediump float;");
 		#end
 
@@ -630,6 +630,10 @@ class GlslOut {
 			add(e);
 			add("\n\n");
 		}
+
+		#if lime
+		if (version > 120) version = 120;
+		#end
 
 		if( isES )
 			decl("#version " + (version < 100 ? 100 : version) + (version > 150 ? " es" : ""));
