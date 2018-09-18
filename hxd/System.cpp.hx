@@ -75,7 +75,11 @@ class System {
 		trace('about to call init()');
 		init();
 
+		#if lime
+		runMainLoop();
+		#else
 		haxe.Timer.delay(runMainLoop, 0);
+		#end
 	}
 
 	static function runMainLoop() {
