@@ -486,6 +486,7 @@ class GlDriver extends Driver {
 		#if lime
 		if (buf.globals.length <= 0 || buf.globals.buffer == null) return;
 		#end
+		trace('buffers');
 		switch( which ) {
 		case Globals:
 			if( s.globals != null ) {

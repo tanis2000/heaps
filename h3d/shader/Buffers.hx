@@ -7,7 +7,7 @@ package h3d.shader;
 	public var Buffers = 3;
 }
 
-typedef ShaderBufferData = #if js js.html.Float32Array #else #if cpp lime.utils.Float32Array #else haxe.ds.Vector<hxd.impl.Float32> #end #end;
+typedef ShaderBufferData = #if js js.html.Float32Array #elseif lime lime.utils.Float32Array #else haxe.ds.Vector<hxd.impl.Float32> #end;
 
 class ShaderBuffers {
 
@@ -42,6 +42,7 @@ class Buffers {
 	public var fragment : ShaderBuffers;
 
 	public function new( s : hxsl.RuntimeShader ) {
+		trace(s.vertex);
 		vertex = new ShaderBuffers(s.vertex);
 		fragment = new ShaderBuffers(s.fragment);
 	}
