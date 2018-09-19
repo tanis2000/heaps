@@ -362,6 +362,7 @@ class RenderContext extends h3d.impl.RenderContext {
 			var k = new hxd.FloatBuffer();
 			for( v in [0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
 				k.push(v);
+			trace('upload');
 			fixedBuffer.uploadVector(k, 0, 4);
 		}
 		engine.renderQuadBuffer(fixedBuffer);

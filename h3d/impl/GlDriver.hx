@@ -1161,6 +1161,7 @@ class GlDriver extends Driver {
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(data,bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
 		#elseif lime
+		trace('lime uploadVertexBuffer');
 		var buf : Float32Array = buf.getNative();
 		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
@@ -1407,6 +1408,8 @@ class GlDriver extends Driver {
 			mrtExt.drawBuffersWEBGL(CBUFFERS[k]);
 		#elseif (hlsdl || usegl)
 		gl.drawBuffers(k, CBUFFERS);
+		#elseif lime
+		gl.drawBuffers(CBUFFERS[k]);
 		#end
 	}
 
