@@ -1740,7 +1740,7 @@ class GlDriver extends Driver {
 	static var CBUFFERS =
 		#if (hlsdl || usegl)
 			hl.Bytes.getArray([for( i in 0...32 ) GL.COLOR_ATTACHMENT0 + i]);
-		#elseif js
+		#elseif (js || lime)
 			[for( i in 0...32 ) [for( k in 0...i ) GL.COLOR_ATTACHMENT0 + k]];
 		#else
 			null;
