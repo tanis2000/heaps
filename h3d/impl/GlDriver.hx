@@ -1162,8 +1162,8 @@ class GlDriver extends Driver {
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(data,bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
 		#elseif lime
 		trace('lime uploadVertexBuffer');
-		var buf : Float32Array = buf.getNative();
-		var sub = new Float32Array(buf.buffer, bufPos * 4, vertexCount * stride);
+		var data : Float32Array = buf.getNative();
+		var sub = new Float32Array(data.buffer, bufPos * 4, vertexCount * stride);
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
 		#else
 		var buf : Float32Array = buf.getNative();
@@ -1179,8 +1179,8 @@ class GlDriver extends Driver {
 		#if hl
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(buf.getData(),bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
 		#elseif lime
-		var buf = bytesToUint8Array(buf);
-		var sub = new Uint8Array(buf.buffer, bufPos * 4, vertexCount * stride * 4);
+		var data = bytesToUint8Array(buf);
+		var sub = new Uint8Array(data.buffer, bufPos * 4, vertexCount * stride * 4);
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
 		#else
 		var buf = bytesToUint8Array(buf);
@@ -1197,8 +1197,8 @@ class GlDriver extends Driver {
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(data,bufPos << bits,indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
 		#elseif lime
-		var buf = new Uint16Array(buf.getNative());
-		var sub = new Uint16Array(buf.buffer, bufPos << bits, indiceCount);
+		var data = new Uint16Array(buf.getNative());
+		var sub = new Uint16Array(data.buffer, bufPos << bits, indiceCount);
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
 		#else
 		var buf = new Uint16Array(buf.getNative());
@@ -1215,8 +1215,8 @@ class GlDriver extends Driver {
 		#if hl
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(buf.getData(),bufPos << bits, indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
 		#elseif lime
-		var buf = bytesToUint8Array(buf);
-		var sub = new Uint8Array(buf.buffer, bufPos << bits, indiceCount << bits);
+		var data = bytesToUint8Array(buf);
+		var sub = new Uint8Array(data.buffer, bufPos << bits, indiceCount << bits);
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
 		#else
 		var buf = bytesToUint8Array(buf);
