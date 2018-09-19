@@ -13,7 +13,7 @@ class Stage {
 	public var vsync(get, set) : Bool;
 	public var isFocused(get, never) : Bool;
 
-	var limeApp: LimeApp;
+	public var limeApp: LimeApp;
 	var windowWidth = 800;
 	var windowHeight = 600;
 

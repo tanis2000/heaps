@@ -109,8 +109,8 @@ class System {
 
 	// getters
 
-	static function get_width() : Int return 0;
-	static function get_height() : Int return 0;
+	static function get_width() : Int return Stage.getInstance().limeApp.window.width;
+	static function get_height() : Int return Stage.getInstance().limeApp.window.height;
 	static function get_lang() : String return "en";
 	static function get_platform() : Platform return PC;
 	static function get_screenDPI() : Int return 72;
