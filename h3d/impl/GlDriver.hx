@@ -1006,6 +1006,9 @@ class GlDriver extends Driver {
 		gl.bufferData(GL.ELEMENT_ARRAY_BUFFER, count * size, GL.STATIC_DRAW);
 		#elseif hl
 		gl.bufferDataSize(GL.ELEMENT_ARRAY_BUFFER, count * size, GL.STATIC_DRAW);
+		#elseif lime
+		var tmp = new Uint8Array(count * size);
+		gl.bufferData(GL.ELEMENT_ARRAY_BUFFER, count * size, tmp, GL.STATIC_DRAW);
 		#end
 		var outOfMem = gl.getError() == GL.OUT_OF_MEMORY;
 		gl.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, null);
@@ -1162,8 +1165,15 @@ class GlDriver extends Driver {
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(data,bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
 		#elseif lime
 		trace('lime uploadVertexBuffer');
+		trace('startVertex * stride * 4', startVertex * stride * 4);
+		trace('vertexCount * stride * 4', vertexCount * stride * 4);
 		var data : Float32Array = buf.getNative();
+		trace('data.length', data.length);
+		trace('bufPos', bufPos);
 		var sub = new Float32Array(data.buffer, bufPos * 4, vertexCount * stride);
+		trace('sub.length', sub.length);
+		trace('vertexCount', vertexCount);
+		trace('stride', stride);
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
 		#else
 		var buf : Float32Array = buf.getNative();
@@ -1179,6 +1189,7 @@ class GlDriver extends Driver {
 		#if hl
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, streamData(buf.getData(),bufPos * 4,vertexCount * stride * 4), bufPos * 4 * STREAM_POS, vertexCount * stride * 4);
 		#elseif lime
+		trace('lime uploadVertexBytes');
 		var data = bytesToUint8Array(buf);
 		var sub = new Uint8Array(data.buffer, bufPos * 4, vertexCount * stride * 4);
 		gl.bufferSubData(GL.ARRAY_BUFFER, startVertex * stride * 4, vertexCount * stride * 4, sub);
@@ -1197,6 +1208,7 @@ class GlDriver extends Driver {
 		var data = #if hl hl.Bytes.getArray(buf.getNative()) #else buf.getNative() #end;
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(data,bufPos << bits,indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
 		#elseif lime
+		trace('lime uploadIndexBuffer');
 		var data = new Uint16Array(buf.getNative());
 		var sub = new Uint16Array(data.buffer, bufPos << bits, indiceCount);
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
@@ -1215,6 +1227,7 @@ class GlDriver extends Driver {
 		#if hl
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, streamData(buf.getData(),bufPos << bits, indiceCount << bits), (bufPos << bits) * STREAM_POS, indiceCount << bits);
 		#elseif lime
+		trace('lime uploadIndexBytes');
 		var data = bytesToUint8Array(buf);
 		var sub = new Uint8Array(data.buffer, bufPos << bits, indiceCount << bits);
 		gl.bufferSubData(GL.ELEMENT_ARRAY_BUFFER, startIndice << bits, indiceCount << bits, sub);
@@ -1309,8 +1322,10 @@ class GlDriver extends Driver {
 		}
 		if( ibuf.is32 )
 			gl.drawElements(GL.TRIANGLES, ntriangles * 3, GL.UNSIGNED_INT, startIndex * 4);
-		else
+		else {
+			trace('gl.drawElements');
 			gl.drawElements(GL.TRIANGLES, ntriangles * 3, GL.UNSIGNED_SHORT, startIndex * 2);
+		}
 	}
 
 	override function allocInstanceBuffer( b : InstanceBuffer, bytes : haxe.io.Bytes ) {
