@@ -116,15 +116,15 @@ class RenderContext extends h3d.impl.RenderContext {
 	function initShaders( shaders ) {
 		currentShaders = shaders;
 		compiledShader = manager.compileShaders(shaders);
-		trace('RenderContext initShaders()');
+		//trace('RenderContext initShaders()');
 		if( buffers == null )
 			buffers = new h3d.shader.Buffers(compiledShader);
 		else
 			buffers.grow(compiledShader);
-		trace('calling fillGlobals');
+		//trace('calling fillGlobals');
 		manager.fillGlobals(buffers, compiledShader);
 		engine.selectShader(compiledShader);
-		trace('calling uploadShaderBuffers');
+		//trace('calling uploadShaderBuffers');
 		engine.uploadShaderBuffers(buffers, Globals);
 	}
 
@@ -365,7 +365,6 @@ class RenderContext extends h3d.impl.RenderContext {
 			var k = new hxd.FloatBuffer();
 			for( v in [0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
 				k.push(v);
-			trace('upload');
 			fixedBuffer.uploadVector(k, 0, 4);
 		}
 		engine.renderQuadBuffer(fixedBuffer);

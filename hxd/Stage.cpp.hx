@@ -127,7 +127,7 @@ class LimeApp extends lime.app.Application {
 
 	public override function update (deltaTime:Int) {
 		//stage.loopFunc();
-		trace('update');
+		//trace('update');
 		@:privateAccess System.mainLoop();
 	}
 	public override function render (context:lime.graphics.RenderContext):Void {

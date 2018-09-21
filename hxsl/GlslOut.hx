@@ -546,7 +546,7 @@ class GlslOut {
 		intelDriverFix = true;
 		#end
 
-		#if (!lime || !desktop)
+		#if (!desktop)
 		decl("precision mediump float;");
 		#end
 
